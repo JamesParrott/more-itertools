@@ -653,17 +653,16 @@ def strictly_n(iterable, n, too_short=None, too_long=None):
 
 
 def _tag_with_type(x):
-    # Allows distinguishing between [1] and [True] using == 
+    # Allows distinguishing between [1] and [True] using ==
 
-    if (isinstance(x, (str, bytes, bytearray, memoryview))
-        or not isinstance(x, abc.Iterable)):
+    if isinstance(x, (str, bytes, bytearray, memoryview)) or not isinstance(
+        x, abc.Iterable
+    ):
 
         return x, type(x)
-    
+
     if isinstance(x, dict):
-        return {_tag_with_type(k) : _tag_with_type(v)
-                for k, v in x.items()
-        }
+        return {_tag_with_type(k): _tag_with_type(v) for k, v in x.items()}
 
     if isinstance(x, abc.Collection):
         return x.__class__(_tag_with_type(item) for item in x)
@@ -768,12 +767,11 @@ def distinct_permutations(iterable, r=None):
     try:
         items.sort()
 
-
         contains_bools = False
         contains_1_or_0 = False
 
         # if items is sortable, but contains both booleans and 1 or 0
-        # Then 
+        # Then
         for x in items:
             if x is True or x is False:
                 contains_bools = True
@@ -782,17 +780,15 @@ def distinct_permutations(iterable, r=None):
 
         if contains_bools and contains_1_or_0:
             raise TypeError
-        
 
         sortable = True
     except TypeError:
         sortable = False
 
-
-
         def make_type_tagged_tester(obj):
             def tester(x):
                 return _tag_with_type(obj) == _tag_with_type(x)
+
             return tester
 
         # items_and_types = type_tag(items)

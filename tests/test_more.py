@@ -29,7 +29,7 @@ from string import ascii_letters
 from sys import version_info
 from time import sleep
 from traceback import format_exc
-from unittest import skipIf, TestCase, expectedFailure
+from unittest import skipIf, TestCase
 
 import more_itertools as mi
 
@@ -527,7 +527,6 @@ class DistinctPermutationsTests(TestCase):
                 actual = sorted(mi.distinct_permutations(iter(iterable), r))
                 self.assertEqual(actual, expected)
 
-
     def test_unsortable_hashables(self):
         for iterable in (
             [None, 2, "U"],  # Nothing compares 2U
@@ -557,7 +556,6 @@ class DistinctPermutationsTests(TestCase):
                 )
                 self.assertEqual(actual, expected)
 
-
     def test_unsortable_some_unhashables(self):
         for iterable in (
             [[], 0, 1],
@@ -567,19 +565,11 @@ class DistinctPermutationsTests(TestCase):
             [{}, 0, {}, 1, 1, True],
             [[], {}, 'a', 'b', 'c'],
             [[1, 2, 3], {'a': 1, 'b': 2, 'c': 3}, set('bar'), 0, 0, 1],
-            [[False],[0],1,2]
+            [[False], [0], 1, 2],
+            [[1], [True]],
         ):
             self._run_unsortable_unhashable_test(iterable)
 
-    # itertools.permutations does not yield permutations 
-    # that distinguish between 1 and True
-    @expectedFailure
-    def test_unsortable_some_unhashables(self):
-        for iterable in (
-            [[1],[True]],
-        ):
-            self._run_unsortable_unhashable_test(iterable)
-    
     def _run_unsortable_unhashable_test(self, iterable):
         with self.subTest(iterable=iterable):
 
