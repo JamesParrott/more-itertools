@@ -670,7 +670,7 @@ def _tag_with_type(x):
     if isinstance(x, abc.Iterator):
         return (_tag_with_type(y) for y in x)
 
-    raise NotImplemented(f'Unsupported type: {type(x)=}, {x=}')
+    raise NotImplementedError(f'Unsupported type: {type(x)=}, {x=}')
 
 
 def distinct_permutations(iterable, r=None):
