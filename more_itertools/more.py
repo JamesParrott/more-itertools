@@ -749,7 +749,16 @@ def distinct_permutations(iterable, r=None):
     except TypeError:
         sortable = False
 
-        items_and_types = [(item, type(item)) for item in items]
+        def type_tag(x):
+            if isinstance(x, dict):
+                return {type_tag(k) : type_tag(v) for k, v in x.items()}
+            
+            if isinstance(x, (list, tuple, set)):
+                return x.__class__(type_tag(item) for item in x)
+
+            return x, type(x)
+
+        items_and_types = type_tag(items)
         # Sets are unordered.  Could use list(dict.fromkeys(items))
         # if every item was Hashable.
         # Suboptimal, but this tool is already slower than O(n^2).
