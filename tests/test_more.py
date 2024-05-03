@@ -29,7 +29,7 @@ from string import ascii_letters
 from sys import version_info
 from time import sleep
 from traceback import format_exc
-from unittest import skipIf, TestCase
+from unittest import skipIf, TestCase, expectedFailure
 
 import more_itertools as mi
 
@@ -527,13 +527,6 @@ class DistinctPermutationsTests(TestCase):
                 actual = sorted(mi.distinct_permutations(iter(iterable), r))
                 self.assertEqual(actual, expected)
 
-    @staticmethod
-    def _get_type_tagged(permutations):
-        # Allows cases such as {1} == {True} to be caught as test failures.
-        # i.e. set(self._get_typed_tagged([1])) !=
-        #      set(self._get_typed_tagged([True]))
-        for permutation in permutations:
-            yield tuple((obj, type(obj)) for obj in permutation)
 
     def test_unsortable_hashables(self):
         for iterable in (
@@ -556,13 +549,14 @@ class DistinctPermutationsTests(TestCase):
                 # sorted(iterable) will raise a TypeError
                 # TODO: Add not in docs to emphasise return order
                 #       is not guaranteed if items are incomparable.
-                expected = set(self._get_type_tagged(permutations(iterable)))
+                expected = set(mi.more._tag_with_type(permutations(iterable)))
                 actual = set(
-                    self._get_type_tagged(
+                    mi.more._tag_with_type(
                         mi.distinct_permutations(iter(iterable))
                     )
                 )
                 self.assertEqual(actual, expected)
+
 
     def test_unsortable_some_unhashables(self):
         for iterable in (
@@ -573,36 +567,51 @@ class DistinctPermutationsTests(TestCase):
             [{}, 0, {}, 1, 1, True],
             [[], {}, 'a', 'b', 'c'],
             [[1, 2, 3], {'a': 1, 'b': 2, 'c': 3}, set('bar'), 0, 0, 1],
+            [[1],[True]],
+            [[False],[0],1,2]
         ):
-            with self.subTest(iterable=iterable):
+            self._run_unsortable_unhashable_test(iterable)
 
-                expected = list(self._get_type_tagged(permutations(iterable)))
-                actual = list(
-                    self._get_type_tagged(
-                        mi.distinct_permutations(iter(iterable))
-                    )
+    # itertools.permutations does not yield permutations 
+    # that distinguish between 1 and True
+    @expectedFailure
+    def test_unsortable_some_unhashables(self):
+        for iterable in (
+            [[1],[True]],
+            [[False],[0],1,2]
+        ):
+            self._run_unsortable_unhashable_test(iterable)
+    
+    def _run_unsortable_unhashable_test(self, iterable):
+        with self.subTest(iterable=iterable):
+
+            expected = list(mi.more._tag_with_type(permutations(iterable)))
+            actual = list(
+                mi.more._tag_with_type(
+                    mi.distinct_permutations(iter(iterable))
                 )
+            )
 
-                # Can't do expected == actual or set(expected) == set(actual)
-                # as the same order is not required to pass, and the point of
-                # these subtests is that iterable is unsortable, and contains
-                # an unhashable item.
+            # Can't do expected == actual or set(expected) == set(actual)
+            # as the same order is not required to pass, and the point of
+            # these subtests is that iterable is unsortable, and contains
+            # an unhashable item.
 
-                # If empty, then everything in expected is in actual
-                missing_from_actual = [
-                    tagged_perm
-                    for tagged_perm in expected
-                    if tagged_perm not in actual
-                ]
-                self.assertFalse(missing_from_actual)
+            # If empty, then everything in expected is in actual
+            missing_from_actual = [
+                tagged_perm
+                for tagged_perm in expected
+                if tagged_perm not in actual
+            ]
+            self.assertFalse(missing_from_actual)
 
-                # If empty, then everything in actual is in expected
-                unexpected = [
-                    tagged_perm
-                    for tagged_perm in actual
-                    if tagged_perm not in expected
-                ]
-                self.assertFalse(unexpected)
+            # If empty, then everything in actual is in expected
+            unexpected = [
+                tagged_perm
+                for tagged_perm in actual
+                if tagged_perm not in expected
+            ]
+            self.assertFalse(unexpected)
 
 
 class IlenTests(TestCase):

@@ -652,6 +652,28 @@ def strictly_n(iterable, n, too_short=None, too_long=None):
         too_long(n + 1)
 
 
+def _tag_with_type(x):
+    # Allows distinguishing between [1] and [True] using == 
+
+    if (isinstance(x, (str, bytes, bytearray, memoryview))
+        or not isinstance(x, abc.Iterable)):
+
+        return x, type(x)
+    
+    if isinstance(x, dict):
+        return {_tag_with_type(k) : _tag_with_type(v)
+                for k, v in x.items()
+        }
+
+    if isinstance(x, abc.Collection):
+        return x.__class__(_tag_with_type(item) for item in x)
+
+    if isinstance(x, abc.Iterator):
+        return (_tag_with_type(y) for y in x)
+
+    raise NotImplemented(f'Unsupported type: {type(x)=}, {x=}')
+
+
 def distinct_permutations(iterable, r=None):
     """Yield successive distinct permutations of the elements in *iterable*.
 
@@ -745,26 +767,41 @@ def distinct_permutations(iterable, r=None):
 
     try:
         items.sort()
+
+
+        contains_bools = False
+        contains_1_or_0 = False
+
+        # if items is sortable, but contains both booleans and 1 or 0
+        # Then 
+        for x in items:
+            if x is True or x is False:
+                contains_bools = True
+            elif x in {1, 0}:
+                contains_1_or_0 = True
+
+        if contains_bools and contains_1_or_0:
+            raise TypeError
+        
+
         sortable = True
     except TypeError:
         sortable = False
 
-        def type_tag(x):
-            if isinstance(x, dict):
-                return {type_tag(k) : type_tag(v) for k, v in x.items()}
-            
-            if isinstance(x, (list, tuple, set)):
-                return x.__class__(type_tag(item) for item in x)
 
-            return x, type(x)
 
-        items_and_types = type_tag(items)
+        def make_type_tagged_tester(obj):
+            def tester(x):
+                return _tag_with_type(obj) == _tag_with_type(x)
+            return tester
+
+        # items_and_types = type_tag(items)
         # Sets are unordered.  Could use list(dict.fromkeys(items))
         # if every item was Hashable.
         # Suboptimal, but this tool is already slower than O(n^2).
         indices = [
-            items_and_types.index(item_and_type)
-            for item_and_type in items_and_types
+            next(locate(items, make_type_tagged_tester(item)))
+            for item in items
         ]
         indices.sort()
 
@@ -780,7 +817,7 @@ def distinct_permutations(iterable, r=None):
             return algorithm(items)
         else:
             return (
-                tuple(items_and_types[index][0] for index in permutation)
+                tuple(items[index] for index in permutation)
                 for permutation in algorithm(indices)
             )
 
