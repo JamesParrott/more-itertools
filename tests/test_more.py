@@ -567,7 +567,6 @@ class DistinctPermutationsTests(TestCase):
             [{}, 0, {}, 1, 1, True],
             [[], {}, 'a', 'b', 'c'],
             [[1, 2, 3], {'a': 1, 'b': 2, 'c': 3}, set('bar'), 0, 0, 1],
-            [[1],[True]],
             [[False],[0],1,2]
         ):
             self._run_unsortable_unhashable_test(iterable)
@@ -578,7 +577,6 @@ class DistinctPermutationsTests(TestCase):
     def test_unsortable_some_unhashables(self):
         for iterable in (
             [[1],[True]],
-            [[False],[0],1,2]
         ):
             self._run_unsortable_unhashable_test(iterable)
     
