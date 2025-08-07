@@ -4742,6 +4742,7 @@ class CallbackIterTests(TestCase):
                 it.result
 
     def test_exception(self):
+        """ Flakey failure on pypy 3.10? """
         func = lambda callback=None: self._target(cb=callback, exc=ValueError)
         with mi.callback_iter(func) as it:
             self.assertEqual(
