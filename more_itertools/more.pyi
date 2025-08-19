@@ -61,6 +61,7 @@ __all__ = [
     'duplicates_justseen',
     'classify_unique',
     'exactly_n',
+    'extract',
     'filter_except',
     'filter_map',
     'first',
@@ -73,6 +74,7 @@ __all__ = [
     'interleave',
     'interleave_evenly',
     'interleave_longest',
+    'interleave_randomly',
     'intersperse',
     'is_sorted',
     'islice_extended',
@@ -264,6 +266,7 @@ def interleave_longest(*iterables: Iterable[_T]) -> Iterator[_T]: ...
 def interleave_evenly(
     iterables: list[Iterable[_T]], lengths: list[int] | None = ...
 ) -> Iterator[_T]: ...
+def interleave_randomly(*iterables: Iterable[_T]) -> Iterable[_T]: ...
 def collapse(
     iterable: Iterable[Any],
     base_type: _ClassInfo | None = ...,
@@ -941,3 +944,6 @@ def argmin(
 def argmax(
     iterable: Iterable[_T], *, key: Callable[[_T], _U] | None = ...
 ) -> int: ...
+def extract(
+    iterable: Iterable[_T], indices: Iterable[int]
+) -> Iterator[_T]: ...

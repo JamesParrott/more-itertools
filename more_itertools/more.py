@@ -92,6 +92,7 @@ __all__ = [
     'duplicates_justseen',
     'classify_unique',
     'exactly_n',
+    'extract',
     'filter_except',
     'filter_map',
     'first',
@@ -104,6 +105,7 @@ __all__ = [
     'interleave',
     'interleave_evenly',
     'interleave_longest',
+    'interleave_randomly',
     'intersperse',
     'is_sorted',
     'islice_extended',
@@ -1316,6 +1318,28 @@ def interleave_evenly(iterables, lengths=None):
                 errors[i] += delta_primary
 
 
+def interleave_randomly(*iterables):
+    """Return a new iterable randomly selecting from each iterable,
+    until all iterables are exhausted.
+
+    The relative order of the elements in each iterable is preserved,
+    but the order with respect to other iterables is randomized.
+
+        >>> iterables = [1, 2, 3], 'abc', (True, False, None)
+        >>> list(interleave_randomly(*iterables))  # doctest: +SKIP
+        ['a', 'b', 1, 'c', True, False, None, 2, 3]
+    """
+    iterators = [iter(e) for e in iterables]
+    while iterators:
+        idx = randrange(len(iterators))
+        try:
+            yield next(iterators[idx])
+        except StopIteration:
+            # equivalent to `list.pop` but slightly faster
+            iterators[idx] = iterators[-1]
+            del iterators[-1]
+
+
 def collapse(iterable, base_type=None, levels=None):
     """Flatten an iterable with multiple levels of nesting (e.g., a list of
     lists of tuples) into non-iterable types.
@@ -1987,25 +2011,17 @@ def unzip(iterable):
     head = head[0]
     iterables = tee(iterable, len(head))
 
-    def itemgetter(i):
-        def getter(obj):
-            try:
-                return obj[i]
-            except IndexError:
-                # basically if we have an iterable like
-                # iter([(1, 2, 3), (4, 5), (6,)])
-                # the second unzipped iterable would fail at the third tuple
-                # since it would try to access tup[1]
-                # same with the third unzipped iterable and the second tuple
-                # to support these "improperly zipped" iterables,
-                # we create a custom itemgetter
-                # which just stops the unzipped iterables
-                # at first length mismatch
-                raise StopIteration
-
-        return getter
-
-    return tuple(map(itemgetter(i), it) for i, it in enumerate(iterables))
+    # If we have an iterable like iter([(1, 2, 3), (4, 5), (6,)]),
+    # the second unzipped iterable fails at the third tuple since
+    # it tries to access (6,)[1].
+    # Same with the third unzipped iterable and the second tuple.
+    # To support these "improperly zipped" iterables, we suppress
+    # the IndexError, which just stops the unzipped iterables at
+    # first length mismatch.
+    return tuple(
+        iter_suppress(map(itemgetter(i), it), IndexError)
+        for i, it in enumerate(iterables)
+    )
 
 
 def divide(n, iterable):
@@ -5230,3 +5246,45 @@ def argmax(iterable, *, key=None):
     if key is not None:
         iterable = map(key, iterable)
     return max(enumerate(iterable), key=itemgetter(1))[0]
+
+
+def extract(iterable, indices):
+    """Yield values at the specified indices.
+
+    Example:
+
+        >>> data = 'abcdefghijklmnopqrstuvwxyz'
+        >>> list(extract(data, [7, 4, 11, 11, 14]))
+        ['h', 'e', 'l', 'l', 'o']
+
+    The *iterable* is consumed lazily and can be infinite.
+    The *indices* are consumed immediately and must be finite.
+
+    Raises ``IndexError`` if an index lies beyond the iterable.
+    Raises ``ValueError`` for negative indices.
+    """
+
+    iterator = iter(iterable)
+    index_and_position = sorted(zip(indices, count()))
+
+    if index_and_position and index_and_position[0][0] < 0:
+        raise ValueError('Indices must be non-negative')
+
+    buffer = {}
+    iterator_position = -1
+    next_to_emit = 0
+
+    for index, order in index_and_position:
+        advance = index - iterator_position
+        if advance:
+            try:
+                value = next(islice(iterator, advance - 1, None))
+            except StopIteration:
+                raise IndexError(index)
+            iterator_position = index
+
+        buffer[order] = value
+
+        while next_to_emit in buffer:
+            yield buffer.pop(next_to_emit)
+            next_to_emit += 1
