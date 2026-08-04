@@ -1,8 +1,6 @@
 import math
-from itertools import repeat, chain, cycle
+from itertools import repeat, chain, cycle, islice
 from typing import Sequence, Iterator
-
-import more_itertools as mit
 
 def zip_lcm[T](
     seq0: Sequence[T],
@@ -31,7 +29,7 @@ def test(func_to_test=zip_lcm):
 
 def alternative(*seqs):
     lcm: int = math.lcm(*map(len, seqs))
-    yield from mit.take(lcm, zip(*map(cycle,seqs)))
+    yield from islice(zip(*map(cycle,seqs)), lcm)
 
 
 if __name__ == '__main__':
