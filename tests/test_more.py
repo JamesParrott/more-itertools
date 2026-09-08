@@ -5231,6 +5231,36 @@ class CombinationIndexTests(TestCase):
 
 
 class CombinationWithReplacementIndexTests(TestCase):
+    def test_none_values(self):
+        for iterable in (
+            [None, 1, 2],
+            [1, None, 2],
+            [1, 2, None],
+            [None, 1, None],
+        ):
+            for r in range(4):
+                first_index = {}
+                for index, element in enumerate(
+                    combinations_with_replacement(iterable, r)
+                ):
+                    with self.subTest(iterable=iterable, element=element):
+                        actual = mi.combination_with_replacement_index(
+                            iter(element), iter(iterable)
+                        )
+                        expected = first_index.setdefault(element, index)
+                        self.assertEqual(actual, expected)
+
+    def test_invalid_none_values(self):
+        for element, iterable in (
+            ((None,), [1, 2]),
+            ((1, None), [1, 2]),
+            ((1, None), [None, 1]),
+            ((None, 2), [1, None]),
+        ):
+            with self.subTest(element=element, iterable=iterable):
+                with self.assertRaises(ValueError):
+                    mi.combination_with_replacement_index(element, iterable)
+
     def test_r_less_than_n(self):
         iterable = 'abcdefg'
         r = 4
