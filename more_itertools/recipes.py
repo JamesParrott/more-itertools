@@ -600,7 +600,7 @@ def random_product(*iterables, repeat=1):
         >>> random_product('abcd', range(4), repeat=2)  # doctest:+SKIP
         ('a', 2, 'd', 3)
 
-    This equivalent to taking a random selection from
+    This is equivalent to taking a random selection from
     ``itertools.product(*args, repeat=repeat)``.
 
     """
@@ -617,7 +617,7 @@ def random_permutation(iterable, r=None):
         >>> random_permutation(range(5))  # doctest:+SKIP
         (3, 4, 0, 1, 2)
 
-    This equivalent to taking a random selection from
+    This is equivalent to taking a random selection from
     ``itertools.permutations(iterable, r)``.
 
     """
@@ -632,7 +632,7 @@ def random_combination(iterable, r):
         >>> random_combination(range(5), 3)  # doctest:+SKIP
         (2, 3, 4)
 
-    This equivalent to taking a random selection from
+    This is equivalent to taking a random selection from
     ``itertools.combinations(iterable, r)``.
 
     """
@@ -649,7 +649,7 @@ def random_combination_with_replacement(iterable, r):
         >>> random_combination_with_replacement(range(3), 5) # doctest:+SKIP
         (0, 0, 1, 2, 2)
 
-    This equivalent to taking a random selection from
+    This is equivalent to taking a random selection from
     ``itertools.combinations_with_replacement(iterable, r)``.
 
     """
