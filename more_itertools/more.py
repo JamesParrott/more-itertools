@@ -4517,33 +4517,19 @@ def combination_with_replacement_index(element, iterable):
     """
     element = tuple(element)
     l = len(element)
-    element = enumerate(element)
-
-    k, y = next(element, (None, None))
-    if k is None:
-        return 0
-
-    indexes = []
     pool = tuple(iterable)
-    for n, x in enumerate(pool):
-        while x == y:
-            indexes.append(n)
-            tmp, y = next(element, (None, None))
-            if tmp is None:
-                break
-            else:
-                k = tmp
-        if y is None:
-            break
-    else:
+    n = len(pool)
+
+    occupations = [0] * n
+    try:
+        i = 0
+        for e in element:
+            i = pool.index(e, i)
+            occupations[i] += 1
+    except ValueError:
         raise ValueError(
             'element is not a combination with replacement of iterable'
         )
-
-    n = len(pool)
-    occupations = [0] * n
-    for p in indexes:
-        occupations[p] += 1
 
     index = 0
     cumulative_sum = 0
