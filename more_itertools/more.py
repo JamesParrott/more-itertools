@@ -4533,7 +4533,7 @@ def combination_with_replacement_index(element, iterable):
                 break
             else:
                 k = tmp
-        if y is None:
+        if len(indexes) == l:
             break
     else:
         raise ValueError(
