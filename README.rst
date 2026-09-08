@@ -259,9 +259,15 @@ Development
 
 ``more-itertools`` is maintained by `@erikrose <https://github.com/erikrose>`_
 and `@bbayles <https://github.com/bbayles>`_, with help from `many others <https://github.com/more-itertools/more-itertools/graphs/contributors>`_.
-If you have a problem or suggestion, please file a bug or pull request in this
-repository. Thanks for contributing!
 
+Some notes on contributing:
+
+* If you'd like to propose a new feature, please make an issue first.
+* If you're fixing a trivial bug or typo, you don't need to make an issue first.
+* If you're fixing a non-trivial bug, please go ahead and make an issue first.
+* Not all proposals for new functionality will be accepted, so please save yourself some work by checking first with an issue.
+
+Automatically generated pull requests that don't follow these instructions will be closed summarily.
 
 Version History
 ===============
