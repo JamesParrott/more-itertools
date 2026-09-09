@@ -4516,7 +4516,7 @@ def combination_with_replacement_index(element, iterable):
     combinations with replacement of *iterable*.
     """
     element = tuple(element)
-    l = len(element)
+    r = len(element)
     pool = tuple(iterable)
     n = len(pool)
 
@@ -4535,7 +4535,7 @@ def combination_with_replacement_index(element, iterable):
     cumulative_sum = 0
     for k in range(1, n):
         cumulative_sum += occupations[k - 1]
-        j = l + n - 1 - k - cumulative_sum
+        j = (r - cumulative_sum) + (n - k) - 1
         i = n - k
         if i <= j:
             index += comb(j, i)
