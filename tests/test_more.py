@@ -6117,6 +6117,23 @@ class ConstrainedBatchesTests(TestCase):
         expected = [('1', '1'), ('12345678',), ('12345', '12345')]
         self.assertEqual(actual, expected)
 
+    def test_max_count_one(self):
+        self.assertEqual(
+            list(mi.constrained_batches(['', 'a', ''], 10, max_count=1)),
+            [('',), ('a',), ('',)],
+        )
+
+    def test_nonpositive_max_count(self):
+        for max_count in (0, -1):
+            for items in ([], ['a', 'b']):
+                with self.subTest(max_count=max_count, items=items):
+                    source = iter(items)
+                    with self.assertRaisesRegex(
+                        ValueError, 'maximum count must be greater than zero'
+                    ):
+                        list(mi.constrained_batches(source, 10, max_count))
+                    self.assertEqual(list(source), items)
+
     def test_strict(self):
         iterable = ['1', '123456789', '1']
         size = 8
