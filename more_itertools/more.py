@@ -4938,7 +4938,7 @@ def constrained_batches(
     [(b'12345', b'123'), (b'12345678', b'1', b'1'), (b'12', b'1')]
 
     If a *max_count* is supplied, the number of items per batch is also
-    limited:
+    limited. It must be greater than zero:
 
     >>> iterable = [b'12345', b'123', b'12345678', b'1', b'1', b'12', b'1']
     >>> list(constrained_batches(iterable, 10, max_count = 2))
@@ -4952,6 +4952,8 @@ def constrained_batches(
     """
     if max_size <= 0:
         raise ValueError('maximum size must be greater than zero')
+    if max_count is not None and max_count <= 0:
+        raise ValueError('maximum count must be greater than zero')
 
     batch = []
     batch_size = 0
