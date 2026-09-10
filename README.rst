@@ -262,12 +262,11 @@ and `@bbayles <https://github.com/bbayles>`_, with help from `many others <https
 
 Some notes on contributing:
 
+* If you're fixing a documentation typo, you don't need to make an issue before opening a pull request.
+* If you're fixing a bug, please make an issue first
 * If you'd like to propose a new feature, please make an issue first.
-* If you're fixing a trivial bug or typo, you don't need to make an issue first.
-* If you're fixing a non-trivial bug, please go ahead and make an issue first.
 * Not all proposals for new functionality will be accepted, so please save yourself some work by checking first with an issue.
-
-Automatically generated pull requests that don't follow these instructions will be closed summarily.
+* Automatically generated pull requests that don't follow these instructions will be closed summarily.
 
 Version History
 ===============
